@@ -1,0 +1,9 @@
+obj
+*.xcworkspace
+*.xcuserdatad
+*~
+config.make
+bin/*
+!bin/data
+bin/data/*
+!bin/data/ca-bundle.crt

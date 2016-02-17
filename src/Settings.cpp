@@ -1,0 +1,22 @@
+#include "Settings.h"
+
+Settings * Settings::_instance = 0;
+
+Settings * Settings::instance(){
+	if(_instance == 0){
+		_instance = new Settings();
+	}
+	return _instance;
+}
+
+Settings::Settings(){
+	_instagramToken = "";
+}
+
+void Settings::setInstagramToken(string t){
+	_instagramToken = t;
+}
+
+string Settings::getInstagramToken(){
+	return _instagramToken;
+}
