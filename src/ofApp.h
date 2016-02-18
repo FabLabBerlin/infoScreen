@@ -1,27 +1,23 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxInstagram.h"
 #include "Settings.h"
+#include "InstagramDataProvider.h"
+#include "InstagramView.h"
 
 class ofApp : public ofBaseApp{
 
 	public:
-
+		ofApp();
+	
 		void setup();
 		void update();
 		void draw();
-		
-		void urlResponse(ofHttpResponse & response);
-
-		ofxInstagram instagram;
-		ofVideoPlayer currentVideo;
-		ofURLFileLoader urlLoader;
 	
-		string currentVideoUrl;
-		string currentVideoFileName;
+		void onMediaLoaded(MediaLoadedEventArgs & args);
 	
-		float lastInstagramUpdate;
-		float instagramUpdateIntervalSeconds;
+		InstagramDataProvider _instagramDataProvider;
+		InstagramView * _instagramView;
+	
 };
 

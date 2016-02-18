@@ -1,6 +1,7 @@
 #include "ofMain.h"
 #include "ofApp.h"
 #include "Settings.h"
+#include "ofxXmlSettings.h"
 
 int main(int argc, char * argv[]){
 	
@@ -21,7 +22,25 @@ int main(int argc, char * argv[]){
 		}
 	}
 	
-	ofSetupOpenGL(1024,768, OF_WINDOW);
+	if(Settings::instance()->getInstagramToken() == ""){
+		ofxXmlSettings settings;
+		if(!settings.load("config.xml")){
+			cout << "Please copy config-example.xml to config.xml and set up your token" << endl;
+			ofExit(EXIT_FAILURE);
+		}
+		if(settings.tagExists("config")){
+			settings.pushTag("config");
+			Settings::instance()->setInstagramToken(settings.getValue("access_token", ""));
+			settings.popTag();
+		}
+	}
+	
+	#ifdef TARGET_RASPBERRY_PI
+		ofSetupOpenGL(800, 450, OF_FULLSCREEN);
+	#else
+		ofSetupOpenGL(800, 450, OF_WINDOW);
+	#endif
+	
 	ofRunApp( new ofApp());
 	
 }

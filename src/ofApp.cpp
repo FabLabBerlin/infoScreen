@@ -1,61 +1,44 @@
 #include "ofApp.h"
 
+ofApp::ofApp(){
+	_instagramView = 0;
+}
+
 void ofApp::setup(){
 	ofBackground(255,255,255);
 	ofSetVerticalSync(true);
-	ofRegisterURLNotification(this);
 	
-	cout << "Using instagram token " << Settings::instance()->getInstagramToken() << endl;
-	instagram.setup(Settings::instance()->getInstagramToken(), "self");
-    instagram.setCertFileLocation(ofToDataPath("ca-bundle.crt", false));
-	instagram.getUserRecentMedia("self");
-	//instagram.getUserLikedMedia();
-	
-	lastInstagramUpdate = 0.0f;
-	instagramUpdateIntervalSeconds = 5.0f;
+	ofAddListener(_instagramDataProvider.mediaLoadedEvent, this, &ofApp::onMediaLoaded);
+	_instagramDataProvider.setup();
 }
 
 void ofApp::update(){
-
-	float now = ofGetElapsedTimef();
-	float updateTime = lastInstagramUpdate + instagramUpdateIntervalSeconds;
-	if(now >= updateTime){
-		instagram.getUserRecentMedia("self");
-		lastInstagramUpdate = now;
-		cout << "Updating Instagram feed on: " << ofToString(now) << endl;
+	if(_instagramView != 0){
+		_instagramView->update();
 	}
-
-	if(instagram.getVideoURL().size()){
-		if(currentVideoUrl != instagram.getVideoURL()[0]){
-			currentVideoUrl = instagram.getVideoURL()[0];
-			size_t found = currentVideoUrl.find_last_of("/\\");
-			currentVideoFileName = currentVideoUrl.substr(found + 1);
-			
-			//currentVideoUid = ofToString(ofGetSystemTime()) + ".mp4";
-			//currentVideo.load(currentVideoUrl);
-			cout << "numImages: " << instagram.getImageURL().size() << endl;
-			cout << "numVideos: " << instagram.getVideoURL().size() << endl;
-			cout << currentVideoUrl << endl;
-			
-			ofSaveURLAsync(currentVideoUrl, currentVideoFileName);
-		}
-	}
-
-    currentVideo.update();
 }
 
 void ofApp::draw(){
-	ofSetHexColor(0xFFFFFF);
-    currentVideo.draw(20,20);
-	instagram.drawJSON(10);
+	if(_instagramView != 0){
+		_instagramView->draw();
+	}
 }
 
-void ofApp::urlResponse(ofHttpResponse & response){
-	cout << "response.status: " << response.status << endl;
-	cout << "response.request.name: " << response.request.name << endl;
-	cout << "response.data: " << response.data << endl;
-	currentVideo.close();
-	currentVideo.load(response.request.name);
-	currentVideo.setLoopState(OF_LOOP_NORMAL);
-	currentVideo.play();
+void ofApp::onMediaLoaded(MediaLoadedEventArgs & args){
+	if(_instagramView != 0){
+		delete _instagramView;
+		_instagramView = 0;
+	}
+
+	if(args.type == "image"){
+		_instagramView = new InstagramView("image", "", &args.data,
+			args.username, args.caption, args.profilePicture);
+		_instagramView->setup();
+	}
+	
+	if(args.type == "video"){
+		_instagramView = new InstagramView("video", args.name, 0,
+			args.username, args.caption, args.profilePicture);
+		_instagramView->setup();
+	}
 }
