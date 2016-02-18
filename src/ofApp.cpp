@@ -16,6 +16,8 @@ void ofApp::setup(){
 }
 
 void ofApp::update(){
+	ofHideCursor();
+
 	if(_instagramPosts.size() <= 0){
 		return;
 	}
