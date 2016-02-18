@@ -2,15 +2,13 @@
 
 InstagramDataProvider::InstagramDataProvider(){
 	_lastUpdateTime = -1.0f;
-	_updateIntervalSeconds = 10.0f;
-	_isMediaLoading = false;
+	_updateIntervalSeconds = 30.0f;
 }
 
 void InstagramDataProvider::setup(){
 	cout << "Using instagram token " << Settings::instance()->getInstagramToken() << endl;
 	_instagram.setup(Settings::instance()->getInstagramToken(), "self");
     _instagram.setCertFileLocation(ofToDataPath("ca-bundle.crt", false));
-	
 	startThread();
 }
 
@@ -21,71 +19,48 @@ void InstagramDataProvider::threadedFunction(){
 		float now = ofGetElapsedTimef();
 		float updateTime = _lastUpdateTime + _updateIntervalSeconds;
 		
-		if((now >= updateTime || _lastUpdateTime < 0) && !_isMediaLoading){
-			_instagram.getUserRecentMedia("self");
+		if(now >= updateTime || _lastUpdateTime < 0){
+			_instagram.getUserRecentMedia("self", 10);
 			_lastUpdateTime = now;
-
-			if(_instagram.getVideoURL().size() && _instagram.getVideoURL()[0] != ""){
-				if(_currentVideoUrl != _instagram.getVideoURL()[0]){
-					_currentVideoUrl = _instagram.getVideoURL()[0];
-					size_t found = _currentVideoUrl.find_last_of("/\\");
-					_currentVideoFileName = _currentVideoUrl.substr(found + 1);
-					ofRegisterURLNotification(this);
-					ofSaveURLAsync(_currentVideoUrl, _currentVideoFileName);
-					_currentMediaType = "video";
-					_isMediaLoading = true;
+			
+			InstagramDataLoadedEventArgs args;
+			
+			for(int i = 0; i < _instagram.getVideoURL().size(); ++i){
+				InstagramPostData postData;
+				basicData data;
+				data = _instagram.getBasicData()[i];
+				
+				postData.id = data.imageID;
+				postData.username = data.user;
+				postData.caption = data.caption;
+				postData.videoUrl = _instagram.getVideoURL()[i];
+				postData.imageUrl = _instagram.getImageURL()[i];
+				postData.profilePictureUrl = _instagram.getProfilePicture()[i];
+				
+				if(postData.videoUrl == ""){
+					postData.type = "image";
+				}else{
+					postData.type = "video";
 				}
-			}else if(_instagram.getImageURL().size()){
-				if(_currentImageUrl != _instagram.getImageURL()[0]){
-					_currentImageUrl = _instagram.getImageURL()[0];
-					ofRegisterURLNotification(this);
-					ofLoadURLAsync(_currentImageUrl);
-					_currentMediaType = "image";
-					_isMediaLoading = true;
+				
+				args.posts.push_back(postData);
+			} // for
+			
+			// Compare
+			bool isSameOld = false;
+			for(int i = 0; i < _args.posts.size(); ++i){
+				if(_args.posts[i].id != args.posts[i].id){
+					isSameOld = false;
 				}
 			}
-		}
+			
+			if(!isSameOld){
+				ofNotifyEvent(dataLoadedEvent, args, this);
+			}
+			
+		} // if
 		
-		ofSleepMillis(100);
+		ofSleepMillis(50);
 	}
 	
 }
-
-void InstagramDataProvider::urlResponse(ofHttpResponse & response){
-	
-	ofUnregisterURLNotification(this);
-	
-	if(response.status!=200){
-		_isMediaLoading = false;
-		return;
-	}
-	
-	MediaLoadedEventArgs args;
-	
-	if(response.request.saveTo){
-		args.type = "video";
-		args.name = response.request.name;
-	}else{
-		args.type = "image";
-		args.data = response.data;
-	}
-	
-	basicData data;
-	if(_instagram.getBasicData().size()){
-		data = _instagram.getBasicData()[0];
-	}
-	
-	string profilePicture;
-	if(_instagram.getProfilePicture().size()){
-		profilePicture = _instagram.getProfilePicture()[0];
-	}
-	
-	args.profilePicture = profilePicture;
-	args.username = data.user;
-	args.caption = data.caption;
-	
-	ofNotifyEvent(mediaLoadedEvent, args, this);
-	
-	_isMediaLoading = false;
-}
-

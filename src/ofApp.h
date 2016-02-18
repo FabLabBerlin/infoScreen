@@ -13,11 +13,19 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+		void onInstagramDataLoaded(InstagramDataLoadedEventArgs & args);
 	
-		void onMediaLoaded(MediaLoadedEventArgs & args);
+	private:
 	
 		InstagramDataProvider _instagramDataProvider;
 		InstagramView * _instagramView;
 	
+		int _instagramMaxItems;
+		int _instagramCurrentItem;
+	
+		float _changeIntervalSeconds;
+		float _lastChangeTime;
+	
+		vector <InstagramPostData> _instagramPosts;
 };
 

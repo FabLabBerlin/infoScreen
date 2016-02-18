@@ -4,13 +4,18 @@
 #include "ofxInstagram.h"
 #include "Settings.h"
 
-struct MediaLoadedEventArgs{
+struct InstagramPostData{
+	string id;
 	string type;
-	string name;
-	ofBuffer data;
+	string videoUrl;
+	string imageUrl;
 	string username;
+	string profilePictureUrl;
 	string caption;
-	string profilePicture;
+};
+
+struct InstagramDataLoadedEventArgs{
+	vector <InstagramPostData> posts;
 };
 
 class InstagramDataProvider : public ofThread{
@@ -20,22 +25,15 @@ class InstagramDataProvider : public ofThread{
 	
 		void setup();
 		void threadedFunction();
-		void urlResponse(ofHttpResponse & response);
 	
-		ofEvent <MediaLoadedEventArgs> mediaLoadedEvent;
+		ofEvent <InstagramDataLoadedEventArgs> dataLoadedEvent;
 
 	private:
 		ofxInstagram _instagram;
-		ofURLFileLoader _urlLoader;
 	
 		float _lastUpdateTime;
 		float _updateIntervalSeconds;
-		bool _isMediaLoading;
 	
-		string _currentMediaType;
-		string _currentVideoUrl;
-		string _currentVideoFileName;
-		string _currentImageUrl;
-		string _currentLoadingMediaType;
-
+		// A copy of args to compare with
+		InstagramDataLoadedEventArgs _args;
 };

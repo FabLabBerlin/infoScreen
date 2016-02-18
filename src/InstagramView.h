@@ -1,13 +1,14 @@
 #pragma once
 
 #include "ofMain.h"
+#include "InstagramDataProvider.h"
+#include <regex>
 
 class InstagramView{
 
 	public:
 	
-		InstagramView(string type, string name, ofBuffer * data,
-			string username, string caption, string profilePicture);
+		InstagramView(InstagramPostData args);
 		~InstagramView();
 	
 		void setup();
@@ -27,9 +28,11 @@ class InstagramView{
 		float _avatarWidth;
 		float _avatarHeight;
 	
-		string _username;
-		string _caption;
-		string _profilePicture;
+		void loadImage();
+		void loadVideo();
+		void loadProfileImage();
+	
+		InstagramPostData _args;
 	
 		ofTrueTypeFont	_fontMdRegular;
 		ofTrueTypeFont  _fontMdBold;
