@@ -1,3 +1,4 @@
+.DS_Store
 obj
 *.xcworkspace
 *.xcuserdatad
@@ -6,4 +7,6 @@ config.make
 bin/*
 !bin/data
 bin/data/*
+!bin/data/config-example.xml
 !bin/data/ca-bundle.crt
+!bin/data/OpenSans*
