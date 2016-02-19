@@ -2,6 +2,8 @@
 
 Social media info screen for fab labs and makerspaces. Or any other place. Currently loads data from [Instagram](https://instagram.com).
 
+![Info Screen Gif](infoScreen.gif)
+
 
 ## Technology
 
