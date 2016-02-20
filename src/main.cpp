@@ -32,6 +32,8 @@ int main(int argc, char * argv[]){
 			settings.pushTag("config");
 			Settings::instance()->setInstagramToken(settings.getValue("access_token", ""));
 			settings.popTag();
+			
+			Settings::instance()->setCache(true);
 		}
 	}
 	

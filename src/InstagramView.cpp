@@ -154,7 +154,7 @@ void InstagramView::loadImage(){
 	
 	// Before loading check if we already have the file
 	ofFile file = ofFile(imageFileName);
-	if(file.exists()){
+	if(file.exists() && Settings::instance()->getCache()){
 		initImage(imageFileName);
 	}else{
 		ofSaveURLAsync(_args.imageUrl, imageFileName);
@@ -168,7 +168,7 @@ void InstagramView::loadVideo(){
 	
 	// Before loading check if we already have the file
 	ofFile file = ofFile(videoFileName);
-	if(file.exists()){
+	if(file.exists() && Settings::instance()->getCache()){
 		initVideo(videoFileName);
 	}else{
 		ofSaveURLAsync(_args.videoUrl, videoFileName);
@@ -182,7 +182,7 @@ void InstagramView::loadProfileImage(){
 	
 	// Before loading check if we already have the file
 	ofFile file = ofFile(profilePictureFileName);
-	if(file.exists()){
+	if(file.exists() && Settings::instance()->getCache()){
 		initProfileImage(profilePictureFileName);
 	}else{
 		ofSaveURLAsync(_args.profilePictureUrl, profilePictureFileName);

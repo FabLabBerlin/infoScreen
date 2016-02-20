@@ -2,7 +2,8 @@
 
 #include "ofMain.h"
 #include "InstagramDataProvider.h"
-#include <regex>
+#include "Settings.h"
+
 
 class InstagramView{
 

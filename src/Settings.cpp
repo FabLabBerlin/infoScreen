@@ -11,6 +11,7 @@ Settings * Settings::instance(){
 
 Settings::Settings(){
 	_instagramToken = "";
+	_cache = true;
 }
 
 void Settings::setInstagramToken(string t){
@@ -19,4 +20,12 @@ void Settings::setInstagramToken(string t){
 
 string Settings::getInstagramToken(){
 	return _instagramToken;
+}
+
+void Settings::setCache(bool c){
+	_cache = c;
+}
+
+bool Settings::getCache(){
+	return _cache;
 }

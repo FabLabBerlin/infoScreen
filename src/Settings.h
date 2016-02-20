@@ -9,10 +9,14 @@ class Settings {
 		void setInstagramToken(string t);
 		string getInstagramToken();
 	
+		void setCache(bool c);
+		bool getCache();
+	
 	private:
 		static Settings * _instance;
 	
 		Settings();
 
 		string _instagramToken;
+		bool _cache;
 };
