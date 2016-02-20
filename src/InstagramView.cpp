@@ -4,26 +4,31 @@ InstagramView::InstagramView(InstagramPostData args){
 	_image = 0;
 	_video = 0;
 	_profileImage = 0;
+	
+	_margin = 0.0f;
+	_avatarWidth = 0.0f;
+	_avatarHeight = 0.0f;
+	
 	_args = args;
 	
 	ofTrueTypeFont::setGlobalDpi(72);
 	
-	int fontMdSize = (int)(36.0f / 1920.0f * (float)ofGetWindowWidth());
-	_fontMdRegular.load("OpenSans-Regular.ttf", fontMdSize, true, true);
-	_fontMdRegular.setLineHeight(fontMdSize + 5);
-	_fontMdRegular.setLetterSpacing(1.037);
-
-	_fontMdBold.load("OpenSans-Bold.ttf", fontMdSize, true, true);
-	_fontMdBold.setLineHeight(fontMdSize + 5);
-	_fontMdBold.setLetterSpacing(1.037);
+	// Format caption
+	string tail;
 	
-	int fontLgSize = (int)(42.0f / 1920.0f * (float)ofGetWindowWidth());
-	_fontLgRegular.load("OpenSans-Regular.ttf", fontLgSize, true, true);
-	_fontLgRegular.setLineHeight(fontLgSize + 5);
-	_fontLgRegular.setLetterSpacing(1.037);
+	if(_args.caption.size() > 200){
+		_args.caption = _args.caption.substr(0, 200);
+		tail = "...";
+	}else{
+		tail = "";
+	}
+	
+	_args.caption = getWordWrapString(_args.caption, 30) + tail;
 }
 
 InstagramView::~InstagramView(){
+	ofUnregisterURLNotification(this);
+	
 	if(_video != 0){
 		_video->stop();
 		_video->close();
@@ -44,6 +49,20 @@ void InstagramView::setup(){
 	_avatarWidth = (float)ofGetWidth() / 12.0f;
 	_avatarHeight = (float)ofGetWidth() / 12.0f;
 
+	int fontMdSize = (int)(36.0f / 1920.0f * (float)ofGetWindowWidth());
+	_fontMdRegular.load("OpenSans-Regular.ttf", fontMdSize, true, true);
+	_fontMdRegular.setLineHeight(fontMdSize + 5);
+	_fontMdRegular.setLetterSpacing(1.037);
+
+	_fontMdBold.load("OpenSans-Bold.ttf", fontMdSize, true, true);
+	_fontMdBold.setLineHeight(fontMdSize + 5);
+	_fontMdBold.setLetterSpacing(1.037);
+	
+	int fontLgSize = (int)(42.0f / 1920.0f * (float)ofGetWindowWidth());
+	_fontLgRegular.load("OpenSans-Regular.ttf", fontLgSize, true, true);
+	_fontLgRegular.setLineHeight(fontLgSize + 5);
+	_fontLgRegular.setLetterSpacing(1.037);
+
 	loadProfileImage();
 }
 
@@ -54,6 +73,7 @@ void InstagramView::update(){
 }
 
 void InstagramView::draw(){
+
 	ofSetHexColor(0xFFFFFF);
 	
 	// Draw media
@@ -61,11 +81,6 @@ void InstagramView::draw(){
 		_video->draw(0, 0, ofGetHeight(), ofGetHeight());
 	}else if(_image != 0 && _image->isAllocated()){
 		_image->draw(0, 0, ofGetHeight(), ofGetHeight());
-	}else{
-		//ofPushStyle();
-		//ofSetHexColor(0x333333);
-		//ofDrawRectangle(0, 0, ofGetHeight(), ofGetHeight());
-		//ofPopStyle();
 	}
 	
 	// Draw avatar
@@ -99,33 +114,9 @@ void InstagramView::draw(){
 	float commentX = avatarX;
 	float commentY = avatarY + _avatarHeight + _margin + _fontLgRegular.getSize();
 	ofSetHexColor(0x000000);
-	
-	// regex remove hastags
-	/*
-	regex reg("\\b(#)([^ ]*)");
-	_args.caption = regex_replace(_args.caption, reg, "");
-	*/
-	
-	// word wrap
-	char buff[200];
-	char str[_args.caption.size() + 1];
-	
-	int end;
-	string tail;
-	if(_args.caption.size() > 200){
-		end = 199;
-		tail = "...";
-	}else{
-		end = _args.caption.size() - 1;
-		tail = "";
-	}
-	
-	copy(_args.caption.begin(), _args.caption.begin() + end, str);
-	word_wrap(buff, str, 30);
-	string caption = string(buff) + tail;
-	
+
 	if(_fontLgRegular.isLoaded()){
-		_fontLgRegular.drawString(caption, commentX, commentY);
+		_fontLgRegular.drawString(_args.caption, commentX, commentY);
 	}
 	ofPopStyle();
 	
@@ -150,12 +141,15 @@ void InstagramView::draw(){
 		_fontMdRegular.drawString(info, infoX, infoY);
 	}
 	ofPopStyle();
-	
 }
 
 void InstagramView::loadImage(){
 	ofRegisterURLNotification(this);
-	ofLoadURLAsync(_args.imageUrl);
+	size_t found = _args.imageUrl.find_last_of("/\\");
+	string imageFileName = _args.imageUrl.substr(found + 1);
+	//found = imageFileName.find_first_of("?\\");
+	//string fileName = imageFileName.substr(0, found);
+	ofSaveURLAsync(_args.imageUrl, imageFileName);
 }
 
 void InstagramView::loadVideo(){
@@ -167,7 +161,9 @@ void InstagramView::loadVideo(){
 
 void InstagramView::loadProfileImage(){
 	ofRegisterURLNotification(this);
-	ofLoadURLAsync(_args.profilePictureUrl);
+	size_t found = _args.profilePictureUrl.find_last_of("/\\");
+	string profilePictureFileName = _args.profilePictureUrl.substr(found + 1);
+	ofSaveURLAsync(_args.profilePictureUrl, profilePictureFileName);
 }
 
 void InstagramView::urlResponse(ofHttpResponse & response){
@@ -179,11 +175,13 @@ void InstagramView::urlResponse(ofHttpResponse & response){
 	}
 	
 	if(response.request.url == _args.imageUrl){
+		cout << "Loaded image " << response.request.name << endl;
 		_image = new ofImage();
-		_image->load(response.data);
+		_image->load(response.request.name);
 	}
 	
 	if(response.request.url == _args.videoUrl){
+		cout << "Loaded video " << response.request.name << endl;
 		_video = new ofVideoPlayer();
 		_video->load(response.request.name);
 		_video->setLoopState(OF_LOOP_NORMAL);
@@ -192,7 +190,7 @@ void InstagramView::urlResponse(ofHttpResponse & response){
 	
 	if(response.request.url == _args.profilePictureUrl){
 		_profileImage = new ofImage();
-		_profileImage->load(response.data);
+		_profileImage->load(response.request.name);
 		
 		if(_args.type == "image"){
 			loadImage();
@@ -204,46 +202,74 @@ void InstagramView::urlResponse(ofHttpResponse & response){
 	}
 }
 
-char * InstagramView::word_wrap(char * buffer, char * string, int line_width){
-    int i = 0;
-    int k, counter;
- 
-    while(i < strlen(string)){
+string InstagramView::getWordWrapString(string inputString, int charsPerLine){
+	int i = 0;
+	int charInLine = 0;
 	
-        // copy string until the end of the line is reached
-        for(counter = 1; counter <= line_width; counter++){
-            // check if end of string reached
-            if (i == strlen(string)){
-                buffer[i] = 0;
-                return buffer;
-            }
-            buffer[i] = string[i];
-            // check for newlines embedded in the original input 
-            // and reset the index
-            if(buffer[i] == '\n'){
-                counter = 1; 
-            }
-            i++;
-        }
+	string outputLine;
+	string outputString;
+	
+	while (i <= inputString.size()) {
 		
-        // check for whitespace
-        if(isspace(string[i])){
-            buffer[i] = '\n';
-            i++;
-        }else{
-            // check for nearest whitespace back in string
-            for (k = i; k > 0; k--){
-                if(isspace(string[k])){
-                    buffer[k] = '\n';
-                    // set string index back to character after this one
-                    i = k + 1;
-                    break;
-                }
-            }
-        }
-    }
+		if( i > inputString.size() - 1){
+			break;
+		}
+		
+		outputLine += inputString[i];
+		bool lineDone = false;
+		
+		if(outputLine.size() >= charsPerLine){
+			
+			// At this point current line is full with characters
+			lineDone = true;
+			
+			// Check if the next character is whitespace
+			// If it is not, we have to find last space and continue from there
+			if((i + 1) < inputString.size() && inputString[i + 1] != ' '){
+				while(outputLine[outputLine.size() - 1] != ' '){
+					
+					// Remove last char of the partial last word from the line
+					outputLine.pop_back();
+						
+					// And move back our input string cursor by one step
+					--i;
+				}
+			}
+		}else{
+			++charInLine;
+		}
+		
+		if(lineDone || (i == inputString.size() - 1)){
+			
+			// Remove whitespace from the beginning of the line
+			while(outputLine[0] == ' '){
+				outputLine.erase(0, 1);
+			}
+			
+			// Remove whitespace from the end of the line
+			while(outputLine[outputLine.size() - 1] == ' '){
+				outputLine.pop_back();
+			}
+		
+			// Finalize line by adding a linebreak
+			outputLine += "\n";
+			
+			// Add the line to final output string
+			outputString += outputLine;
+			
+			// Reset line
+			outputLine = "";
+			charInLine = 0;
+		}
+		
+		++i;
+		
+	}
 	
-	buffer[i] = 0;
- 
-    return buffer;
+	// Remove endlines from the end
+	while(outputString[outputString.size() - 1] == '\n'){
+		outputString.pop_back();
+	}
+	
+    return outputString;
 }

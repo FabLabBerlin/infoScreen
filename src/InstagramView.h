@@ -16,8 +16,6 @@ class InstagramView{
 		void draw();
 		void urlResponse(ofHttpResponse & response);
 	
-		char * word_wrap (char * buffer, char * string, int line_width);
-	
 	private:
 	
 		ofImage * _image;
@@ -31,6 +29,8 @@ class InstagramView{
 		void loadImage();
 		void loadVideo();
 		void loadProfileImage();
+	
+		string getWordWrapString(string inputString, int charsPerLine = 30);
 	
 		InstagramPostData _args;
 	
