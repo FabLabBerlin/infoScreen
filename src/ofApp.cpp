@@ -59,22 +59,4 @@ void ofApp::onInstagramDataLoaded(InstagramDataLoadedEventArgs & args){
 	cout << " args.posts.size(): " << args.posts.size() << endl;
 	
 	_instagramPosts = args.posts;
-	/*
-	bool isNew = true;
-	for(int i = 0; i < _instagramData.size(); ++i){
-		if(args.videoUrl == _instagramData[i].videoUrl){
-			isNew = false;
-			break;
-		}
-		
-		if(args.imageUrl == _instagramData[i].imageUrl){
-			isNew = false;
-			break;
-		}
-	}
-	
-	if(isNew){
-		_instagramData.push_back(args);
-	}
-	*/
 }
