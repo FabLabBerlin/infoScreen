@@ -12,6 +12,9 @@ class Settings {
 		void setCache(bool c);
 		bool getCache();
 	
+		void setChangeIntervalSeconds(float s);
+		float getChangeIntervalSeconds();
+	
 	private:
 		static Settings * _instance;
 	
@@ -19,4 +22,5 @@ class Settings {
 
 		string _instagramToken;
 		bool _cache;
+		float _changeIntervalSeconds;
 };

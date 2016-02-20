@@ -29,3 +29,11 @@ void Settings::setCache(bool c){
 bool Settings::getCache(){
 	return _cache;
 }
+
+void Settings::setChangeIntervalSeconds(float s){
+	_changeIntervalSeconds = s;
+}
+
+float Settings::getChangeIntervalSeconds(){
+	return _changeIntervalSeconds;
+}

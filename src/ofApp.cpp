@@ -5,7 +5,7 @@ ofApp::ofApp(){
 	_nextInstagramView = 0;
 	_instagramMaxItems = 5;
 	_instagramCurrentItem = 0;
-	_changeIntervalSeconds = 15.0f;
+	_changeIntervalSeconds = Settings::instance()->getChangeIntervalSeconds();
 	_lastChangeTime = -1.0f;
 }
 

@@ -32,6 +32,7 @@ int main(int argc, char * argv[]){
 			settings.pushTag("config");
 			Settings::instance()->setInstagramToken(settings.getValue("access_token", ""));
 			Settings::instance()->setCache(settings.getValue("cache", true));
+			Settings::instance()->setChangeIntervalSeconds(settings.getValue("change_interval_seconds", 15.0f));
 			settings.popTag();
 		}
 	}
