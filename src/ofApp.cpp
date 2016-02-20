@@ -2,6 +2,7 @@
 
 ofApp::ofApp(){
 	_instagramView = 0;
+	_nextInstagramView = 0;
 	_instagramMaxItems = 5;
 	_instagramCurrentItem = 0;
 	_changeIntervalSeconds = 15.0f;
@@ -26,20 +27,25 @@ void ofApp::update(){
 	float nextChangeTime = _lastChangeTime + _changeIntervalSeconds;
 	
 	if(now >= nextChangeTime || _lastChangeTime < 0){
-		cout << "change" << endl;
-		cout << " numItems: " << _instagramPosts.size() << endl;
-		
-		if(_instagramView != 0){
-			delete _instagramView;
-		}
-		
-		_instagramView = new InstagramView(_instagramPosts[_instagramCurrentItem]);
-		_instagramView->setup();
-		_lastChangeTime = now;
-		_instagramCurrentItem++;
-		
-		if(_instagramCurrentItem >= _instagramPosts.size()){
-			_instagramCurrentItem = 0;
+		if(_nextInstagramView == 0){
+			_instagramCurrentItem++;
+			
+			if(_instagramCurrentItem >= _instagramPosts.size()){
+				_instagramCurrentItem = 0;
+			}
+			
+			_nextInstagramView = new InstagramView(_instagramPosts[_instagramCurrentItem]);
+			_nextInstagramView->setup();
+		}else{
+			if(_nextInstagramView->getIsLoaded()){
+				if(_instagramView != 0){
+					delete _instagramView;
+				}
+				
+				_instagramView = _nextInstagramView;
+				_nextInstagramView = 0;
+				_lastChangeTime = now;
+			}
 		}
 	}
 	
@@ -51,6 +57,13 @@ void ofApp::update(){
 void ofApp::draw(){
 	if(_instagramView != 0){
 		_instagramView->draw();
+	}
+	
+	if(_nextInstagramView != 0){
+		ofPushStyle();
+		ofSetHexColor(0xff0000);
+		ofDrawRectangle(ofRectangle(ofGetWidth()-20, 10, 10, 10));
+		ofPopStyle();
 	}
 }
 

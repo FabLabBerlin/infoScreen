@@ -19,6 +19,7 @@ class ofApp : public ofBaseApp{
 	
 		InstagramDataProvider _instagramDataProvider;
 		InstagramView * _instagramView;
+		InstagramView * _nextInstagramView;
 	
 		int _instagramMaxItems;
 		int _instagramCurrentItem;

@@ -4,7 +4,6 @@
 #include "InstagramDataProvider.h"
 #include "Settings.h"
 
-
 class InstagramView{
 
 	public:
@@ -16,6 +15,8 @@ class InstagramView{
 		void update();
 		void draw();
 		void urlResponse(ofHttpResponse & response);
+	
+		bool getIsLoaded(){ return _isLoaded; }
 	
 	private:
 	
@@ -42,5 +43,7 @@ class InstagramView{
 		ofTrueTypeFont	_fontMdRegular;
 		ofTrueTypeFont  _fontMdBold;
 		ofTrueTypeFont	_fontLgRegular;
+	
+		bool _isLoaded;
 	
 };

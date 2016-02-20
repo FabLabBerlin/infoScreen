@@ -9,6 +9,8 @@ InstagramView::InstagramView(InstagramPostData args){
 	_avatarWidth = 0.0f;
 	_avatarHeight = 0.0f;
 	
+	_isLoaded = false;
+	
 	_args = args;
 	
 	ofTrueTypeFont::setGlobalDpi(72);
@@ -192,6 +194,7 @@ void InstagramView::loadProfileImage(){
 void InstagramView::initImage(string fileName){
 	_image = new ofImage();
 	_image->load(fileName);
+	_isLoaded = true;
 }
 
 void InstagramView::initVideo(string fileName){
@@ -199,6 +202,7 @@ void InstagramView::initVideo(string fileName){
 	_video->load(fileName);
 	_video->setLoopState(OF_LOOP_NORMAL);
 	_video->play();
+	_isLoaded = true;
 }
 
 void InstagramView::initProfileImage(string fileName){
