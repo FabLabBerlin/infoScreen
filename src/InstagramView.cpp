@@ -1,55 +1,24 @@
 #include "InstagramView.h"
 
-InstagramView::InstagramView(InstagramPostData args){
-	_image = 0;
-	_video = 0;
-	_profileImage = 0;
-	
+InstagramView::InstagramView(){
 	_margin = 0.0f;
 	_avatarWidth = 0.0f;
 	_avatarHeight = 0.0f;
 	
 	_isLoaded = false;
-	
-	_args = args;
-	
-	ofTrueTypeFont::setGlobalDpi(72);
-	
-	// Format caption
-	string tail;
-	
-	if(_args.caption.size() > 200){
-		_args.caption = _args.caption.substr(0, 200);
-		tail = "...";
-	}else{
-		tail = "";
-	}
-	
-	_args.caption = getWordWrapString(_args.caption, 30) + tail;
+	_isLoading = false;
 }
 
 InstagramView::~InstagramView(){
 	ofUnregisterURLNotification(this);
-	
-	if(_video != 0){
-		_video->stop();
-		_video->close();
-		delete _video;
-	}
-	
-	if(_image != 0){
-		delete _image;
-	}
-	
-	if(_profileImage != 0){
-		delete _profileImage;
-	}
 }
 
 void InstagramView::setup(){
 	_margin = (float)ofGetWidth() / 22.0f;
 	_avatarWidth = (float)ofGetWidth() / 12.0f;
 	_avatarHeight = (float)ofGetWidth() / 12.0f;
+	
+	ofTrueTypeFont::setGlobalDpi(72);
 
 	int fontMdSize = (int)(36.0f / 1920.0f * (float)ofGetWindowWidth());
 	_fontMdRegular.load("OpenSans-Regular.ttf", fontMdSize, true, true);
@@ -64,13 +33,49 @@ void InstagramView::setup(){
 	_fontLgRegular.load("OpenSans-Regular.ttf", fontLgSize, true, true);
 	_fontLgRegular.setLineHeight(fontLgSize + 5);
 	_fontLgRegular.setLetterSpacing(1.037);
+}
 
+void InstagramView::load(InstagramPostData args){
+	_args = args;
+	
+	// Format caption
+	string tail;
+	
+	if(_args.caption.size() > 200){
+		_args.caption = _args.caption.substr(0, 200);
+		tail = "...";
+	}else{
+		tail = "";
+	}
+	
+	_args.caption = getWordWrapString(_args.caption, 30) + tail;
+	
 	loadProfileImage();
+	_isLoading = true;
+}
+
+void InstagramView::unload(){
+	ofUnregisterURLNotification(this);
+	
+	if(_video.isLoaded() && _video.isInitialized()){
+		_video.stop();
+		_video.close();
+	}
+	
+	if(_image.isAllocated()){
+		_image.clear();
+	}
+	
+	if(_profileImage.isAllocated()){
+		_profileImage.clear();
+	}
+	
+	_isLoaded = false;
 }
 
 void InstagramView::update(){
-	if(_video != 0){
-		_video->update();
+	if(_video.isLoaded()){
+		_video.update();
 	}
 }
 
@@ -79,10 +84,10 @@ void InstagramView::draw(){
 	ofSetHexColor(0xFFFFFF);
 	
 	// Draw media
-	if(_video != 0 && _video->isLoaded()){
-		_video->draw(0, 0, ofGetHeight(), ofGetHeight());
-	}else if(_image != 0 && _image->isAllocated()){
-		_image->draw(0, 0, ofGetHeight(), ofGetHeight());
+	if(_video.isLoaded() && _video.isInitialized()){
+		_video.draw(0, 0, ofGetHeight(), ofGetHeight());
+	}else if(_image.isAllocated()){
+		_image.draw(0, 0, ofGetHeight(), ofGetHeight());
 	}
 	
 	// Draw avatar
@@ -91,9 +96,9 @@ void InstagramView::draw(){
 	float avatarY = _margin;
 	ofSetHexColor(0xEB545A);
 	ofDrawRectangle(avatarX, avatarY, _avatarWidth, _avatarHeight);
-	if(_profileImage != 0 && _profileImage->isAllocated()){
+	if(_profileImage.isAllocated()){
 		ofSetHexColor(0xFFFFFF);
-		_profileImage->draw(avatarX + 5, avatarY + 5, _avatarWidth - 10, _avatarHeight - 10);
+		_profileImage.draw(avatarX + 5, avatarY + 5, _avatarWidth - 10, _avatarHeight - 10);
 	}else{
 		ofSetHexColor(0x333333);
 		ofDrawRectangle(avatarX + 5, avatarY + 5, _avatarWidth - 10, _avatarHeight - 10);
@@ -192,22 +197,21 @@ void InstagramView::loadProfileImage(){
 }
 
 void InstagramView::initImage(string fileName){
-	_image = new ofImage();
-	_image->load(fileName);
+	_image.load(fileName);
 	_isLoaded = true;
+	_isLoading = false;
 }
 
 void InstagramView::initVideo(string fileName){
-	_video = new ofVideoPlayer();
-	_video->load(fileName);
-	_video->setLoopState(OF_LOOP_NORMAL);
-	_video->play();
+	_video.load(fileName);
+	_video.setLoopState(OF_LOOP_NORMAL);
+	_video.play();
 	_isLoaded = true;
+	_isLoading = false;
 }
 
 void InstagramView::initProfileImage(string fileName){
-	_profileImage = new ofImage();
-	_profileImage->load(fileName);
+	_profileImage.load(fileName);
 	
 	if(_args.type == "image"){
 		loadImage();

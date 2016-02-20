@@ -18,10 +18,10 @@ class ofApp : public ofBaseApp{
 	private:
 	
 		InstagramDataProvider _instagramDataProvider;
-		InstagramView * _instagramView;
-		InstagramView * _nextInstagramView;
+		InstagramView _instagramViewA;
+		InstagramView _instagramViewB;
+		InstagramView * _currentInstagramView;
 	
-		int _instagramMaxItems;
 		int _instagramCurrentItem;
 	
 		float _changeIntervalSeconds;

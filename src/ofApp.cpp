@@ -1,17 +1,19 @@
 #include "ofApp.h"
 
 ofApp::ofApp(){
-	_instagramView = 0;
-	_nextInstagramView = 0;
-	_instagramMaxItems = 5;
+	_currentInstagramView = &_instagramViewA;
 	_instagramCurrentItem = 0;
 	_changeIntervalSeconds = Settings::instance()->getChangeIntervalSeconds();
 	_lastChangeTime = -1.0f;
 }
 
 void ofApp::setup(){
+	_instagramViewA.setup();
+	_instagramViewB.setup();
+	
 	ofBackground(255,255,255);
 	ofSetVerticalSync(true);
+	
 	ofAddListener(_instagramDataProvider.dataLoadedEvent, this, &ofApp::onInstagramDataLoaded);
 	_instagramDataProvider.setup();
 }
@@ -27,39 +29,47 @@ void ofApp::update(){
 	float nextChangeTime = _lastChangeTime + _changeIntervalSeconds;
 	
 	if(now >= nextChangeTime || _lastChangeTime < 0){
-		if(_nextInstagramView == 0){
+	
+		InstagramView * next;
+		if(_currentInstagramView == &_instagramViewA){
+			next = &_instagramViewB;
+		}else{
+			next = &_instagramViewA;
+		}
+	
+		if(next->getIsLoaded()){
+			_currentInstagramView->unload();
+			_currentInstagramView = next;
+			_lastChangeTime = now;
+		}else if(!next->getIsLoading()){
 			_instagramCurrentItem++;
 			
 			if(_instagramCurrentItem >= _instagramPosts.size()){
 				_instagramCurrentItem = 0;
 			}
 			
-			_nextInstagramView = new InstagramView(_instagramPosts[_instagramCurrentItem]);
-			_nextInstagramView->setup();
-		}else{
-			if(_nextInstagramView->getIsLoaded()){
-				if(_instagramView != 0){
-					delete _instagramView;
-				}
-				
-				_instagramView = _nextInstagramView;
-				_nextInstagramView = 0;
-				_lastChangeTime = now;
-			}
+			next->load(_instagramPosts[_instagramCurrentItem]);
 		}
 	}
 	
-	if(_instagramView != 0){
-		_instagramView->update();
+	if(_currentInstagramView->getIsLoaded()){
+		_currentInstagramView->update();
 	}
 }
 
 void ofApp::draw(){
-	if(_instagramView != 0){
-		_instagramView->draw();
+	if(_currentInstagramView->getIsLoaded()){
+		_currentInstagramView->draw();
 	}
 	
-	if(_nextInstagramView != 0){
+	InstagramView * next;
+	if(_currentInstagramView == &_instagramViewA){
+		next = &_instagramViewB;
+	}else{
+		next = &_instagramViewA;
+	}
+	
+	if(next->getIsLoading()){
 		ofPushStyle();
 		ofSetHexColor(0xff0000);
 		ofDrawRectangle(ofRectangle(ofGetWidth()-20, 10, 10, 10));

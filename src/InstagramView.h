@@ -8,21 +8,24 @@ class InstagramView{
 
 	public:
 	
-		InstagramView(InstagramPostData args);
+		InstagramView();
 		~InstagramView();
 	
 		void setup();
+		void load(InstagramPostData args);
+		void unload();
 		void update();
 		void draw();
 		void urlResponse(ofHttpResponse & response);
 	
 		bool getIsLoaded(){ return _isLoaded; }
+		bool getIsLoading(){ return _isLoading; }
 	
 	private:
 	
-		ofImage * _image;
-		ofImage * _profileImage;
-		ofVideoPlayer * _video;
+		ofImage _image;
+		ofImage _profileImage;
+		ofVideoPlayer _video;
 	
 		float _margin;
 		float _avatarWidth;
@@ -45,5 +48,6 @@ class InstagramView{
 		ofTrueTypeFont	_fontLgRegular;
 	
 		bool _isLoaded;
+		bool _isLoading;
 	
 };
