@@ -30,6 +30,10 @@ class InstagramView{
 		void loadVideo();
 		void loadProfileImage();
 	
+		void initImage(string fileName);
+		void initVideo(string fileName);
+		void initProfileImage(string fileName);
+	
 		string getWordWrapString(string inputString, int charsPerLine = 30);
 	
 		InstagramPostData _args;

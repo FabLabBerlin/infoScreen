@@ -147,27 +147,74 @@ void InstagramView::loadImage(){
 	ofRegisterURLNotification(this);
 	size_t found = _args.imageUrl.find_last_of("/\\");
 	string imageFileName = _args.imageUrl.substr(found + 1);
+	
+	// Uncomment this if caching is not important or filesystem does not support long filenames
 	//found = imageFileName.find_first_of("?\\");
 	//string fileName = imageFileName.substr(0, found);
-	ofSaveURLAsync(_args.imageUrl, imageFileName);
+	
+	// Before loading check if we already have the file
+	ofFile file = ofFile(imageFileName);
+	if(file.exists()){
+		initImage(imageFileName);
+	}else{
+		ofSaveURLAsync(_args.imageUrl, imageFileName);
+	}
 }
 
 void InstagramView::loadVideo(){
 	ofRegisterURLNotification(this);
 	size_t found = _args.videoUrl.find_last_of("/\\");
 	string videoFileName = _args.videoUrl.substr(found + 1);
-	ofSaveURLAsync(_args.videoUrl, videoFileName);
+	
+	// Before loading check if we already have the file
+	ofFile file = ofFile(videoFileName);
+	if(file.exists()){
+		initVideo(videoFileName);
+	}else{
+		ofSaveURLAsync(_args.videoUrl, videoFileName);
+	}
 }
 
 void InstagramView::loadProfileImage(){
 	ofRegisterURLNotification(this);
 	size_t found = _args.profilePictureUrl.find_last_of("/\\");
 	string profilePictureFileName = _args.profilePictureUrl.substr(found + 1);
-	ofSaveURLAsync(_args.profilePictureUrl, profilePictureFileName);
+	
+	// Before loading check if we already have the file
+	ofFile file = ofFile(profilePictureFileName);
+	if(file.exists()){
+		initProfileImage(profilePictureFileName);
+	}else{
+		ofSaveURLAsync(_args.profilePictureUrl, profilePictureFileName);
+	}
+}
+
+void InstagramView::initImage(string fileName){
+	_image = new ofImage();
+	_image->load(fileName);
+}
+
+void InstagramView::initVideo(string fileName){
+	_video = new ofVideoPlayer();
+	_video->load(fileName);
+	_video->setLoopState(OF_LOOP_NORMAL);
+	_video->play();
+}
+
+void InstagramView::initProfileImage(string fileName){
+	_profileImage = new ofImage();
+	_profileImage->load(fileName);
+	
+	if(_args.type == "image"){
+		loadImage();
+	}
+
+	if(_args.type == "video"){
+		loadVideo();
+	}
 }
 
 void InstagramView::urlResponse(ofHttpResponse & response){
-	
 	ofUnregisterURLNotification(this);
 
 	if(response.status != 200){
@@ -175,30 +222,15 @@ void InstagramView::urlResponse(ofHttpResponse & response){
 	}
 	
 	if(response.request.url == _args.imageUrl){
-		cout << "Loaded image " << response.request.name << endl;
-		_image = new ofImage();
-		_image->load(response.request.name);
+		initImage(response.request.name);
 	}
 	
 	if(response.request.url == _args.videoUrl){
-		cout << "Loaded video " << response.request.name << endl;
-		_video = new ofVideoPlayer();
-		_video->load(response.request.name);
-		_video->setLoopState(OF_LOOP_NORMAL);
-		_video->play();
+		initVideo(response.request.name);
 	}
 	
 	if(response.request.url == _args.profilePictureUrl){
-		_profileImage = new ofImage();
-		_profileImage->load(response.request.name);
-		
-		if(_args.type == "image"){
-			loadImage();
-		}
-	
-		if(_args.type == "video"){
-			loadVideo();
-		}
+		initProfileImage(response.request.name);
 	}
 }
 
