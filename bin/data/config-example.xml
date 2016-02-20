@@ -1,3 +1,4 @@
 <config>
     <access_token>your token here</access_token>
+    <cache>true</cache>
 </config>
