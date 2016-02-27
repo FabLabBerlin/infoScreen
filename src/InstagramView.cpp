@@ -37,6 +37,7 @@ void InstagramView::setup(){
 
 void InstagramView::load(InstagramPostData args){
 	_args = args;
+	_isLoading = true;
 	
 	// Format caption
 	string tail;
@@ -49,9 +50,7 @@ void InstagramView::load(InstagramPostData args){
 	}
 	
 	_args.caption = getWordWrapString(_args.caption, 30) + tail;
-	
 	loadProfileImage();
-	_isLoading = true;
 }
 
 void InstagramView::unload(){
