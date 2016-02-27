@@ -57,10 +57,14 @@ void InstagramView::load(InstagramPostData args){
 void InstagramView::unload(){
 	ofUnregisterURLNotification(this);
 	
-	if(_video.isLoaded() && _video.isInitialized()){
-		_video.stop();
+	#ifdef TARGET_RASPBERRY_PI
 		_video.close();
-	}
+	#else
+		if(_video.isLoaded() && _video.isInitialized()){
+			_video.stop();
+			_video.close();
+		}
+	#endif
 	
 	if(_image.isAllocated()){
 		_image.clear();
@@ -74,9 +78,11 @@ void InstagramView::unload(){
 }
 
 void InstagramView::update(){
-	if(_video.isLoaded()){
-		_video.update();
-	}
+	#ifndef TARGET_RASPBERRY_PI
+		if(_video.isLoaded()){
+			_video.update();
+		}
+	#endif
 }
 
 void InstagramView::draw(){
@@ -84,8 +90,13 @@ void InstagramView::draw(){
 	ofSetHexColor(0xFFFFFF);
 	
 	// Draw media
-	if(_video.isLoaded() && _video.isInitialized()){
-		_video.draw(0, 0, ofGetHeight(), ofGetHeight());
+	#ifdef TARGET_RASPBERRY_PI
+		if(_video.isPlaying()){
+			_video.draw(0, 0, ofGetHeight(), ofGetHeight());
+	#else
+		if(_video.isLoaded() && _video.isInitialized()){
+			_video.draw(0, 0, ofGetHeight(), ofGetHeight());
+	#endif
 	}else if(_image.isAllocated()){
 		_image.draw(0, 0, ofGetHeight(), ofGetHeight());
 	}
@@ -203,9 +214,21 @@ void InstagramView::initImage(string fileName){
 }
 
 void InstagramView::initVideo(string fileName){
-	_video.load(fileName);
-	_video.setLoopState(OF_LOOP_NORMAL);
-	_video.play();
+	
+	#ifdef TARGET_RASPBERRY_PI
+		ofxOMXPlayerSettings settings;
+		settings.videoPath = ofToDataPath(fileName, true);
+		settings.useHDMIForAudio = true;	//default true
+		settings.enableTexture = false;		//default true
+		settings.enableLooping = true;		//default true
+		settings.enableAudio = false;		//default true, save resources by disabling
+		_video.setup(settings);
+	#else
+		_video.load(fileName);
+		_video.setLoopState(OF_LOOP_NORMAL);
+		_video.play();
+	#endif
+
 	_isLoaded = true;
 	_isLoading = false;
 }

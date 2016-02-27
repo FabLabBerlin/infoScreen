@@ -4,6 +4,10 @@
 #include "InstagramDataProvider.h"
 #include "Settings.h"
 
+#ifdef TARGET_RASPBERRY_PI
+	#include "ofxOMXPlayer.h"
+#endif
+
 class InstagramView{
 
 	public:
@@ -25,7 +29,12 @@ class InstagramView{
 	
 		ofImage _image;
 		ofImage _profileImage;
-		ofVideoPlayer _video;
+	
+		#ifdef TARGET_RASPBERRY_PI
+			ofxOMXPlayer _video;
+		#else
+			ofVideoPlayer _video;
+		#endif
 	
 		float _margin;
 		float _avatarWidth;

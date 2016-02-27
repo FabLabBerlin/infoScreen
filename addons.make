@@ -1,3 +1,4 @@
 ofxXmlSettings
 ofxInstagram
 ofxJSON
+ofxOMXPlayer
