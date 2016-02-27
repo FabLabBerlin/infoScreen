@@ -28,5 +28,6 @@ class ofApp : public ofBaseApp{
 		float _lastChangeTime;
 	
 		vector <InstagramPostData> _instagramPosts;
+		vector <InstagramPostData> _newInstagramPosts;
 };
 

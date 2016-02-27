@@ -21,6 +21,11 @@ void ofApp::setup(){
 void ofApp::update(){
 	ofHideCursor();
 
+	if(_newInstagramPosts.size()){
+		_instagramPosts = _newInstagramPosts;
+		_newInstagramPosts.clear();
+	}
+
 	if(_instagramPosts.size() <= 0){
 		return;
 	}
@@ -80,6 +85,5 @@ void ofApp::draw(){
 void ofApp::onInstagramDataLoaded(InstagramDataLoadedEventArgs & args){
 	cout << "ofApp::onInstagramDataLoaded()" << endl;
 	cout << " args.posts.size(): " << args.posts.size() << endl;
-	
-	_instagramPosts = args.posts;
+	_newInstagramPosts = args.posts;
 }
