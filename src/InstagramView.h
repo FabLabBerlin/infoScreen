@@ -48,6 +48,7 @@ class InstagramView{
 		void initVideo(string fileName);
 		void initProfileImage(string fileName);
 	
+		string splitInLines(string source, size_t width, string whitespace = " \t\r\n");
 		string getWordWrapString(string inputString, int charsPerLine = 30);
 	
 		InstagramPostData _args;

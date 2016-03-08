@@ -49,7 +49,11 @@ void InstagramView::load(InstagramPostData args){
 		tail = "";
 	}
 	
-	_args.caption = getWordWrapString(_args.caption, 30) + tail;
+	//string c = getWordWrapString(_args.caption, 30) + tail;
+	//_args.caption = c;
+	
+	string c = splitInLines(_args.caption , 30);
+	_args.caption = c + tail;
 	loadProfileImage();
 }
 
@@ -264,12 +268,31 @@ void InstagramView::urlResponse(ofHttpResponse & response){
 	}
 }
 
+string InstagramView::splitInLines(string source, size_t width, string whitespace)
+{
+    size_t  currIndex = width - 1;
+    size_t  sizeToElim;
+    while ( currIndex < source.length() )
+    {
+        currIndex = source.find_last_of(whitespace,currIndex + 1); 
+        if (currIndex == string::npos)
+            break;
+        currIndex = source.find_last_not_of(whitespace,currIndex);
+        if (currIndex == string::npos)
+            break;
+        sizeToElim = source.find_first_not_of(whitespace,currIndex + 1) - currIndex - 1;
+        source.replace( currIndex + 1, sizeToElim , "\n");
+        currIndex += (width + 1); //due to the recently inserted "\n"
+    }
+    return source;
+}
+
 string InstagramView::getWordWrapString(string inputString, int charsPerLine){
 	int i = 0;
 	int charInLine = 0;
 	
-	string outputLine;
-	string outputString;
+	string outputLine = "";
+	string outputString = "";
 	
 	while (i <= inputString.size()) {
 		
@@ -304,20 +327,31 @@ string InstagramView::getWordWrapString(string inputString, int charsPerLine){
 		if(lineDone || (i == inputString.size() - 1)){
 			
 			// Remove whitespace from the beginning of the line
-			while(outputLine[0] == ' '){
-				outputLine.erase(0, 1);
+			if(outputLine.size()){
+				while(outputLine[0] == ' '){
+					outputLine.erase(0, 1);
+				}
 			}
 			
 			// Remove whitespace from the end of the line
-			while(outputLine[outputLine.size() - 1] == ' '){
-				outputLine.pop_back();
+			if(outputLine.size()){
+				while(outputLine[outputLine.size() - 1] == ' '){
+					outputLine.pop_back();
+				}
 			}
 		
 			// Finalize line by adding a linebreak
-			outputLine += "\n";
+			if(outputLine.size() <= charsPerLine){
+				outputLine += "\n";
+			}
 			
 			// Add the line to final output string
-			outputString += outputLine;
+			cout << "outputString(" << outputString.size() << "): " << outputString << endl;
+			cout << "outputLine(" << outputLine.size() << "): " << outputLine << endl;
+			
+			if(outputLine.size() <= charsPerLine){
+				outputString += outputLine;
+			}
 			
 			// Reset line
 			outputLine = "";
@@ -329,9 +363,9 @@ string InstagramView::getWordWrapString(string inputString, int charsPerLine){
 	}
 	
 	// Remove endlines from the end
-	while(outputString[outputString.size() - 1] == '\n'){
-		outputString.pop_back();
-	}
+	//while(outputString[outputString.size() - 1] == '\n'){
+	//	outputString.pop_back();
+	//}
 	
     return outputString;
 }
