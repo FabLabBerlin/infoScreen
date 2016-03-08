@@ -49,9 +49,6 @@ void InstagramView::load(InstagramPostData args){
 		tail = "";
 	}
 	
-	//string c = getWordWrapString(_args.caption, 30) + tail;
-	//_args.caption = c;
-	
 	string c = splitInLines(_args.caption , 30);
 	_args.caption = c + tail;
 	loadProfileImage();
@@ -285,87 +282,4 @@ string InstagramView::splitInLines(string source, size_t width, string whitespac
         currIndex += (width + 1); //due to the recently inserted "\n"
     }
     return source;
-}
-
-string InstagramView::getWordWrapString(string inputString, int charsPerLine){
-	int i = 0;
-	int charInLine = 0;
-	
-	string outputLine = "";
-	string outputString = "";
-	
-	while (i <= inputString.size()) {
-		
-		if( i > inputString.size() - 1){
-			break;
-		}
-		
-		outputLine += inputString[i];
-		bool lineDone = false;
-		
-		if(outputLine.size() >= charsPerLine){
-			
-			// At this point current line is full with characters
-			lineDone = true;
-			
-			// Check if the next character is whitespace
-			// If it is not, we have to find last space and continue from there
-			if((i + 1) < inputString.size() && inputString[i + 1] != ' '){
-				while(outputLine[outputLine.size() - 1] != ' '){
-					
-					// Remove last char of the partial last word from the line
-					outputLine.pop_back();
-						
-					// And move back our input string cursor by one step
-					--i;
-				}
-			}
-		}else{
-			++charInLine;
-		}
-		
-		if(lineDone || (i == inputString.size() - 1)){
-			
-			// Remove whitespace from the beginning of the line
-			if(outputLine.size()){
-				while(outputLine[0] == ' '){
-					outputLine.erase(0, 1);
-				}
-			}
-			
-			// Remove whitespace from the end of the line
-			if(outputLine.size()){
-				while(outputLine[outputLine.size() - 1] == ' '){
-					outputLine.pop_back();
-				}
-			}
-		
-			// Finalize line by adding a linebreak
-			if(outputLine.size() <= charsPerLine){
-				outputLine += "\n";
-			}
-			
-			// Add the line to final output string
-			cout << "outputString(" << outputString.size() << "): " << outputString << endl;
-			cout << "outputLine(" << outputLine.size() << "): " << outputLine << endl;
-			
-			if(outputLine.size() <= charsPerLine){
-				outputString += outputLine;
-			}
-			
-			// Reset line
-			outputLine = "";
-			charInLine = 0;
-		}
-		
-		++i;
-		
-	}
-	
-	// Remove endlines from the end
-	//while(outputString[outputString.size() - 1] == '\n'){
-	//	outputString.pop_back();
-	//}
-	
-    return outputString;
 }
